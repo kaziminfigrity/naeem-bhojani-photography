@@ -32,7 +32,7 @@ export default function AboutHero() {
 
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-transparent to-black/10" />
 
-      <div className="mx-auto flex min-h-[650px] max-w-[1600px] flex-col justify-center px-5 pb-24 pt-28 sm:px-8 lg:min-h-[760px] lg:px-16">
+      <div className="mx-auto flex min-h-[650px] max-w-[1600px] flex-col justify-center px-5 pb-24 pt-36 sm:px-8 sm:pt-40 lg:min-h-[760px] lg:px-16 lg:pt-44">
         <div className="max-w-[680px]">
           {/* Breadcrumb */}
           <nav

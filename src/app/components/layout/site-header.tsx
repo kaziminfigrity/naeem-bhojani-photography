@@ -107,16 +107,23 @@ export default function SiteHeader() {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          type="button"
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={isMenuOpen}
-          onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="flex h-10 w-10 items-center justify-center lg:hidden"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        
+      {/* Mobile Menu Button */}
+      <button
+        type="button"
+        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={isMenuOpen}
+        aria-controls="mobile-navigation"
+        onClick={() => setIsMenuOpen((prev) => !prev)}
+        className="relative z-[100] flex h-10 w-10 shrink-0 items-center justify-center bg-transparent text-white lg:hidden"
+      >
+        {isMenuOpen ? (
+          <X key="close" size={24} strokeWidth={2} />
+        ) : (
+          <Menu key="open" size={24} strokeWidth={2} />
+        )}
+      </button>
+
       </div>
 
       {/* Mobile Menu */}
