@@ -80,7 +80,7 @@ export default function SiteFooter() {
             </div>
           </div>
 
-          <Link
+          {/* <Link
             href="/contact"
             className="group inline-flex min-h-11 items-center justify-center gap-3 self-start rounded-full bg-[#e8c782] px-6 py-3 text-sm font-semibold text-[#15110a] transition duration-300 hover:bg-[#ffe0a0] sm:self-auto"
           >
@@ -89,7 +89,7 @@ export default function SiteFooter() {
               size={17}
               className="transition-transform group-hover:translate-x-1"
             />
-          </Link>
+          </Link> */}
         </div>
 
         {/* Main footer columns */}
