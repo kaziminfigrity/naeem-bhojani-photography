@@ -1,4 +1,3 @@
-import SiteHeader from "@/app/components/layout/site-header";
 import HeroBanner from "@/app/components/home/hero-banner";
 import ServicesSection from "@/app/components/home/services-section";
 import FeaturedGallery from "@/app/components/home/featured-gallery";
@@ -9,18 +8,14 @@ import WeddingCTASection from "@/app/components/home/wedding-cta-section";
 
 export default function HomePage() {
   return (
-    <>
-      <SiteHeader />
-      <main>
-        <HeroBanner />
-        <ServicesSection />
-        <FeaturedGallery />
-        <AboutSection />
-        <BehindTheLens />
-        <TestimonialsSection />
-        <WeddingCTASection />
-      </main>
-      
-    </>
+    <main>
+      <HeroBanner />
+      <ServicesSection />
+      <FeaturedGallery />
+      <AboutSection />
+      <BehindTheLens />
+      <TestimonialsSection />
+      <WeddingCTASection />
+    </main>
   );
 }

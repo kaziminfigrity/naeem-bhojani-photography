@@ -25,7 +25,7 @@ export default function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50 text-white">
+    <header className="absolute inset-x-0 top-0 z-[100] text-white">
       <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-[18px] sm:px-8 lg:px-12">
         {/* Logo */}
         <Link
@@ -113,14 +113,13 @@ export default function SiteHeader() {
         type="button"
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         aria-expanded={isMenuOpen}
-        aria-controls="mobile-navigation"
         onClick={() => setIsMenuOpen((prev) => !prev)}
-        className="relative z-[100] flex h-10 w-10 shrink-0 items-center justify-center bg-transparent text-white lg:hidden"
+        className="relative z-[110] flex h-10 w-10 shrink-0 items-center justify-center lg:hidden"
       >
         {isMenuOpen ? (
-          <X key="close" size={24} strokeWidth={2} />
+          <X key="close" size={24} />
         ) : (
-          <Menu key="open" size={24} strokeWidth={2} />
+          <Menu key="open" size={24} />
         )}
       </button>
 
@@ -130,7 +129,7 @@ export default function SiteHeader() {
       {isMenuOpen && (
         <nav
           aria-label="Mobile navigation"
-          className="border-t border-white/15 bg-black/95 px-5 pb-6 pt-3 backdrop-blur-md sm:px-8 lg:hidden"
+          className="relative z-[105] border-t border-white/15 bg-black px-5 pb-6 pt-3 sm:px-8 lg:hidden"
         >
           <div className="flex flex-col">
             {navigation.map((item) => {
