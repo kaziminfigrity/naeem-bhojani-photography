@@ -1,82 +1,16 @@
 
 import Image from "next/image";
+import type { ServicesList as ServicesListData } from "@/types/services.types";
 
-const services = [
-  {
-    number: "01",
-    title: "Wedding Photography",
-    description:
-      "Capturing your big day with a perfect blend of candid and traditional moments.",
-    image: "/images/Festive Wedding Portrait Under Floral Arch.png",
-    alt: "Beautiful Indian wedding couple portrait",
-    href: "/contact",
-  },
-  {
-    number: "02",
-    title: "Product Photography",
-    description:
-      "High-quality product shots that make your brand stand out in the market.",
-    image: "/images/service-product.png",
-    alt: "Premium product photography",
-    href: "/contact",
-  },
-  {
-    number: "03",
-    title: "Birthday Party",
-    description:
-      "Preserve the joy and excitement of your special celebrations.",
-    image: "/images/service-birthday.png",
-    alt: "Joyful birthday celebration",
-    href: "/contact",
-  },
-  {
-    number: "04",
-    title: "Head Shots",
-    description:
-      "Professional headshots for individuals and teams to create a lasting impression.",
-    image: "/images/Thoughtful Attendee with Laptop.png",
-    alt: "Professional corporate portrait",
-    href: "/contact",
-  },
-  {
-    number: "05",
-    title: "Baby Shower",
-    description:
-      "Beautifully capturing the precious moments of your new beginning.",
-    image: "/images/philosophy-baby.png",
-    alt: "Baby portrait photography",
-    href: "/contact",
-  },
-  {
-    number: "06",
-    title: "Sport Events",
-    description:
-      "Dynamic and high-energy coverage of your sports events and tournaments.",
-    image: "/images/Cricket Celebration High-Five.png",
-    alt: "Sports event photography",
-    href: "/contact",
-  },
-  {
-    number: "07",
-    title: "Corporate Events",
-    description:
-      "Professional coverage for conferences, seminars, and business events.",
-    image: "/images/service-corporate.png",
-    alt: "Corporate event and conference photography",
-    href: "/contact",
-  },
-  {
-    number: "08",
-    title: "Other Services",
-    description:
-      "Custom photography solutions tailored to your unique requirements.",
-    image: "/images/Cinematic Canon EOS 5D Mark IV on Stone.png",
-    alt: "Professional photography camera",
-    href: "/contact",
-  },
-];
+interface ServicesListProps {
+  data: ServicesListData;
+}
 
-export default function ServicesList() {
+export default function ServicesList({ data }: ServicesListProps) {
+  const services = [...(data.items || [])]
+    .filter((service) => service.isActive)
+    .sort((a, b) => a.order - b.order);
+
   return (
     <section
       id="all-services"
@@ -96,26 +30,23 @@ export default function ServicesList() {
           <div>
             <div className="mb-4 flex items-center gap-3">
               <span className="h-px w-9 bg-[#b68a45]" />
+
               <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#a77c39] sm:text-xs">
-                What We Do
+                {data.eyebrow}
               </span>
             </div>
 
             <h2 className="font-serif text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-              Explore Our{" "}
-              <span className="italic text-[#b58a4b]">Services</span>
+              {data.heading}
             </h2>
 
             <p className="mt-4 max-w-xl text-sm leading-7 text-[#625e58] sm:text-base">
-              Professional photography services tailored to your special
-              moments and unique needs.
+              {data.description}
             </p>
           </div>
 
           <p className="max-w-lg text-sm leading-7 text-[#514d47] lg:justify-self-end lg:pb-1 lg:text-[15px]">
-            We believe every occasion has a story worth telling. Our services
-            are designed to beautifully capture those stories with creativity
-            and care.
+            {data.secondaryDescription}
           </p>
         </div>
 
@@ -177,6 +108,7 @@ export default function ServicesList() {
                       />
                     </svg>
                   </span>
+
                   <span>Learn More</span>
                 </a>
               </div>
@@ -187,15 +119,15 @@ export default function ServicesList() {
         {/* Bottom note */}
         <div className="mt-12 flex flex-col items-start justify-between gap-5 border-t border-[#dfd5c7] pt-7 sm:flex-row sm:items-center">
           <p className="max-w-xl text-sm leading-6 text-[#6a6258]">
-            Every moment is unique. Let us create photographs you will treasure
-            for a lifetime.
+            {data.closingText}
           </p>
 
           <a
-            href="/contact"
+            href={data.ctaHref}
             className="group inline-flex shrink-0 items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#8f672f] transition-colors hover:text-black"
           >
-            Discuss Your Project
+            {data.ctaLabel}
+
             <span className="transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>

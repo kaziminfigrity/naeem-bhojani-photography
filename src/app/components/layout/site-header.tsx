@@ -10,19 +10,135 @@ import {
   FaFacebookF,
   FaYoutube,
 } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const navigation = [
-  { label: "About", href: "/about" },
-  { label: "Services", href: "/services" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Testimonials", href: "/testimonials" },
-  { label: "Contact", href: "/contact" },
+import { getWebsiteSettings } from "@/services/api/settings.api";
+import type { WebsiteSettings } from "@/types/settings.types";
+
+const defaultNavigation = [
+  { label: "About", href: "/about", order: 1, isActive: true },
+  { label: "Services", href: "/services", order: 2, isActive: true },
+  { label: "Gallery", href: "/gallery", order: 3, isActive: true },
+  { label: "Testimonials", href: "/testimonials", order: 4, isActive: true },
+  { label: "Contact", href: "/contact", order: 5, isActive: true },
 ];
+
+const defaultSettings: WebsiteSettings = {
+  siteName: "Naeem Bhojani Photography",
+  logo: "",
+  email: "",
+  phone: "",
+  address: "",
+  socialLinks: {
+    instagram: "https://www.instagram.com/",
+    facebook: "https://www.facebook.com/",
+    youtube: "https://www.youtube.com/",
+  },
+  navigation: defaultNavigation,
+  headerCTA: {
+    label: "Book a Session",
+    href: "/contact",
+    isActive: true,
+  },
+  favicon: "",
+  seo: {
+    metaTitle: "Naeem Bhojani Photography",
+    metaDescription: "",
+    keywords: [],
+    ogImage: "",
+  },
+  pageSEO: {
+  home: { metaTitle: "", metaDescription: "", keywords: [], ogImage: "" },
+  about: { metaTitle: "", metaDescription: "", keywords: [], ogImage: "" },
+  services: { metaTitle: "", metaDescription: "", keywords: [], ogImage: "" },
+  contact: { metaTitle: "", metaDescription: "", keywords: [], ogImage: "" },
+  gallery: { metaTitle: "", metaDescription: "", keywords: [], ogImage: "" },
+  testimonials: { metaTitle: "", metaDescription: "", keywords: [], ogImage: "" },
+},
+};
 
 export default function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [settings, setSettings] = useState<WebsiteSettings>(defaultSettings);
+
   const pathname = usePathname();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSettings = async () => {
+      try {
+        const response = await getWebsiteSettings();
+
+        if (isMounted && response.success && response.settings) {
+          setSettings(response.settings);
+        }
+      } catch (error) {
+        console.error("Failed to fetch header settings:", error);
+      }
+    };
+
+    fetchSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const navigation = (
+    settings.navigation?.length
+      ? settings.navigation
+      : defaultNavigation
+  )
+    .filter((item) => item.isActive)
+    .sort((a, b) => a.order - b.order);
+
+  const socialLinks = settings.socialLinks || defaultSettings.socialLinks;
+  const headerCTA = settings.headerCTA || defaultSettings.headerCTA;
+
+  const logoSrc = settings.logo || "/Naeem Bhojani-logo.png";
+
+  const isExternalLogo = logoSrc.startsWith("http");
+
+  const renderSocialLinks = (size: number) => (
+    <>
+      {socialLinks.instagram && (
+        <a
+          href={socialLinks.instagram}
+          aria-label="Instagram"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 transition-colors hover:text-[#d6b477]"
+        >
+          <FaInstagram size={size} />
+        </a>
+      )}
+
+      {socialLinks.facebook && (
+        <a
+          href={socialLinks.facebook}
+          aria-label="Facebook"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 transition-colors hover:text-[#d6b477]"
+        >
+          <FaFacebookF size={size} />
+        </a>
+      )}
+
+      {socialLinks.youtube && (
+        <a
+          href={socialLinks.youtube}
+          aria-label="YouTube"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 transition-colors hover:text-[#d6b477]"
+        >
+          <FaYoutube size={size} />
+        </a>
+      )}
+    </>
+  );
 
   return (
     <header className="absolute inset-x-0 top-0 z-[100] text-white">
@@ -34,11 +150,12 @@ export default function SiteHeader() {
           onClick={() => setIsMenuOpen(false)}
         >
           <Image
-            src="/Naeem Bhojani-logo.png"
-            alt="Naeem Bhojani Photography"
+            src={logoSrc}
+            alt={settings.siteName || "Naeem Bhojani Photography"}
             width={170}
             height={65}
             priority
+            unoptimized={isExternalLogo}
             className="h-auto w-[110px] sm:w-[130px]"
           />
         </Link>
@@ -67,62 +184,38 @@ export default function SiteHeader() {
 
         {/* Desktop Social Icons + CTA */}
         <div className="hidden items-center gap-3 lg:flex xl:gap-5">
-          <Link
-            href="https://www.instagram.com/"
-            aria-label="Instagram"
-            className="p-1 transition-colors hover:text-[#d6b477]"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaInstagram size={20} />
-          </Link>
+          {renderSocialLinks(20)}
 
-          <Link
-            href="https://www.facebook.com/"
-            aria-label="Facebook"
-            className="p-1 transition-colors hover:text-[#d6b477]"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaFacebookF size={20} />
-          </Link>
+          {(socialLinks.instagram ||
+            socialLinks.facebook ||
+            socialLinks.youtube) && (
+            <span className="h-5 w-px bg-white/30" />
+          )}
 
-          <Link
-            href="https://www.youtube.com/"
-            aria-label="YouTube"
-            className="p-1 transition-colors hover:text-[#d6b477]"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaYoutube size={21} />
-          </Link>
-
-          <span className="h-5 w-px bg-white/30" />
-
-          <Link
-            href="/contact"
-            className="rounded-full border border-white/60 px-4 py-2 text-[13px] font-medium tracking-wide text-white transition hover:border-[#d6b477] hover:text-[#d6b477] xl:px-5 xl:py-[9px] xl:text-[14px]"
-          >
-            Book a Session&nbsp;→
-          </Link>
+          {headerCTA.isActive && (
+            <Link
+              href={headerCTA.href || "/contact"}
+              className="rounded-full border border-white/60 px-4 py-2 text-[13px] font-medium tracking-wide text-white transition hover:border-[#d6b477] hover:text-[#d6b477] xl:px-5 xl:py-[9px] xl:text-[14px]"
+            >
+              {headerCTA.label}&nbsp;→
+            </Link>
+          )}
         </div>
 
-        
-      {/* Mobile Menu Button */}
-      <button
-        type="button"
-        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-        aria-expanded={isMenuOpen}
-        onClick={() => setIsMenuOpen((prev) => !prev)}
-        className="relative z-[110] flex h-10 w-10 shrink-0 items-center justify-center lg:hidden"
-      >
-        {isMenuOpen ? (
-          <X key="close" size={24} />
-        ) : (
-          <Menu key="open" size={24} />
-        )}
-      </button>
-
+        {/* Mobile Menu Button */}
+        <button
+          type="button"
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMenuOpen}
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="relative z-[110] flex h-10 w-10 shrink-0 items-center justify-center lg:hidden"
+        >
+          {isMenuOpen ? (
+            <X key="close" size={24} />
+          ) : (
+            <Menu key="open" size={24} />
+          )}
+        </button>
       </div>
 
       {/* Mobile Menu */}
@@ -161,43 +254,17 @@ export default function SiteHeader() {
 
           {/* Mobile Social Icons + CTA */}
           <div className="mt-5 flex items-center gap-5 pt-1">
-            <Link
-              href="https://www.instagram.com/"
-              aria-label="Instagram"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/70 transition hover:text-[#d6b477]"
-            >
-              <FaInstagram size={18} />
-            </Link>
+            {renderSocialLinks(18)}
 
-            <Link
-              href="https://www.facebook.com/"
-              aria-label="Facebook"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/70 transition hover:text-[#d6b477]"
-            >
-              <FaFacebookF size={18} />
-            </Link>
-
-            <Link
-              href="https://www.youtube.com/"
-              aria-label="YouTube"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/70 transition hover:text-[#d6b477]"
-            >
-              <FaYoutube size={19} />
-            </Link>
-
-            <Link
-              href="/contact"
-              onClick={() => setIsMenuOpen(false)}
-              className="ml-auto rounded-full border border-[#d6b477] px-5 py-2.5 text-[12px] text-[#e5c58d] transition hover:bg-[#d6b477]/10"
-            >
-              Book a Session →
-            </Link>
+            {headerCTA.isActive && (
+              <Link
+                href={headerCTA.href || "/contact"}
+                onClick={() => setIsMenuOpen(false)}
+                className="ml-auto rounded-full border border-[#d6b477] px-5 py-2.5 text-[12px] text-[#e5c58d] transition hover:bg-[#d6b477]/10"
+              >
+                {headerCTA.label} →
+              </Link>
+            )}
           </div>
         </nav>
       )}

@@ -4,7 +4,19 @@
 import Image from "next/image";
 import { useState, type FormEvent, type ReactNode } from "react";
 
-function ContactIcon({ children }: { children: ReactNode }) {
+import { submitContactEnquiry } from "@/services/api/contact.api";
+import type { ContactEnquiryPayload } from "@/types/contact.types";
+import type { ContactSectionData } from "@/types/contact-page.types";
+
+interface ContactDetailsFormProps {
+  data: ContactSectionData;
+}
+
+function ContactIcon({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#d6a83e]/80 text-[#efbd55] transition-colors duration-300 group-hover:bg-[#e9b84f]/10 sm:h-[54px] sm:w-[54px]">
       {children}
@@ -12,12 +24,11 @@ function ContactIcon({ children }: { children: ReactNode }) {
   );
 }
 
-const contactItems = [
-  {
-    title: "Phone",
-    detail: "+91 98765 43210",
-    note: "Mon - Sat: 10:00 AM - 7:00 PM",
-    icon: (
+function getContactIcon(title: string) {
+  const normalizedTitle = title.toLowerCase();
+
+  if (normalizedTitle.includes("phone")) {
+    return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
         <path
           d="M7 3H4.8A1.8 1.8 0 0 0 3 4.8C3 13.7 10.3 21 19.2 21a1.8 1.8 0 0 0 1.8-1.8V17l-5-2-2 2a15 15 0 0 1-6-6l2-2-3-6Z"
@@ -27,13 +38,11 @@ const contactItems = [
           strokeLinejoin="round"
         />
       </svg>
-    ),
-  },
-  {
-    title: "Email",
-    detail: "info@naeembhojani.com",
-    note: "We typically reply within 24 hours",
-    icon: (
+    );
+  }
+
+  if (normalizedTitle.includes("email")) {
+    return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
         <rect
           x="3"
@@ -51,34 +60,11 @@ const contactItems = [
           strokeLinejoin="round"
         />
       </svg>
-    ),
-  },
-  {
-    title: "Location",
-    detail: "Ahmedabad, Gujarat, India",
-    note: "Visit our studio by appointment",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-        <path
-          d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"
-          stroke="currentColor"
-          strokeWidth="1.6"
-        />
-        <circle
-          cx="12"
-          cy="10"
-          r="2.5"
-          stroke="currentColor"
-          strokeWidth="1.6"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Working Hours",
-    detail: "Mon - Sat: 10:00 AM - 7:00 PM",
-    note: "Sunday: By Appointment",
-    icon: (
+    );
+  }
+
+  if (normalizedTitle.includes("hour")) {
+    return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
         <circle
           cx="12"
@@ -94,21 +80,81 @@ const contactItems = [
           strokeLinecap="round"
         />
       </svg>
-    ),
-  },
-];
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+      <path
+        d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <circle
+        cx="12"
+        cy="10"
+        r="2.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+    </svg>
+  );
+}
 
 const inputClass =
   "h-[50px] w-full rounded-md border border-white/15 bg-black/25 px-4 text-sm text-white outline-none transition placeholder:text-white/50 focus:border-[#d9ac4d] focus:bg-black/40";
 
-export default function ContactDetailsForm() {
+export default function ContactDetailsForm({
+  data,
+}: ContactDetailsFormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const headingWords = data.heading.trim().split(/\s+/);
+  const headingFirstLine = headingWords.slice(0, 3).join(" ");
+  const headingHighlighted = headingWords.slice(3).join(" ");
+
+  const formHeadingWords = data.formHeading.trim().split(/\s+/);
+  const formHeadingFirst = formHeadingWords.slice(0, -1).join(" ");
+  const formHeadingHighlighted = formHeadingWords.slice(-1).join("");
+
+  const activeContactItems = data.contactItems
+    .filter((item) => item.isActive)
+    .sort((a, b) => a.order - b.order);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // Connect your email service or backend API here.
-    setSubmitted(true);
+    setSubmitting(true);
+    setError("");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const enquiryData: ContactEnquiryPayload = {
+      name: String(formData.get("name") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      phone: String(formData.get("phone") || "").trim(),
+      eventType: String(formData.get("eventType") || ""),
+      eventDate: String(formData.get("eventDate") || ""),
+      message: String(formData.get("message") || "").trim(),
+    };
+
+    try {
+      await submitContactEnquiry(enquiryData);
+
+      setSubmitted(true);
+      form.reset();
+    } catch (err) {
+      console.error("Contact Enquiry Error:", err);
+
+      setError(
+        "Unable to submit your enquiry. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -116,7 +162,7 @@ export default function ContactDetailsForm() {
       {/* Background image */}
       <div className="pointer-events-none absolute inset-0 -z-20">
         <Image
-          src="/images/contact-section-bg.png"
+          src={data.backgroundImage}
           alt=""
           fill
           sizes="100vw"
@@ -135,42 +181,46 @@ export default function ContactDetailsForm() {
         <div className="flex flex-col justify-center">
           <div className="mb-5 flex items-center gap-3">
             <span className="h-px w-8 bg-[#e9b84f]" />
+
             <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#e9b84f] sm:text-xs">
               Contact Information
             </p>
+
             <span className="h-px w-8 bg-[#e9b84f]/60" />
           </div>
 
           <h2 className="max-w-[560px] font-serif text-4xl leading-[1.12] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-            Let’s Talk About
+            {headingFirstLine}
             <br />
-            Your{" "}
             <span className="italic text-[#e9b84f]">
-              Special Moments
+              {headingHighlighted}
             </span>
           </h2>
 
           <p className="mt-5 max-w-[510px] text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
-            Feel free to reach out to us through any of the following
-            channels. We’re always happy to connect and discuss your
-            photography needs.
+            {data.description}
           </p>
 
+          {/* Dynamic contact information */}
           <div className="mt-8 space-y-6 sm:mt-9 sm:space-y-7">
-            {contactItems.map((item) => (
+            {activeContactItems.map((item) => (
               <div
-                key={item.title}
+                key={item._id || `${item.title}-${item.order}`}
                 className="group flex items-center gap-4 sm:gap-5"
               >
-                <ContactIcon>{item.icon}</ContactIcon>
+                <ContactIcon>
+                  {getContactIcon(item.title)}
+                </ContactIcon>
 
                 <div className="min-w-0">
                   <h3 className="text-sm font-semibold text-white sm:text-base">
                     {item.title}
                   </h3>
+
                   <p className="mt-1 break-words text-sm text-white/90 sm:text-base">
                     {item.detail}
                   </p>
+
                   <p className="mt-1 text-xs leading-5 text-white/60 sm:text-sm">
                     {item.note}
                   </p>
@@ -189,17 +239,19 @@ export default function ContactDetailsForm() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#e9b84f] sm:text-xs">
                 Send Us a Message
               </p>
+
               <span className="h-px w-8 bg-[#e9b84f]/70" />
             </div>
 
             <h2 className="font-serif text-4xl sm:text-5xl">
-              Book a{" "}
-              <span className="italic text-[#e9b84f]">Session</span>
+              {formHeadingFirst}{" "}
+              <span className="italic text-[#e9b84f]">
+                {formHeadingHighlighted}
+              </span>
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-white/65">
-              Fill out the form below and we’ll get back to you as soon as
-              possible.
+              {data.formDescription}
             </p>
 
             {submitted ? (
@@ -210,10 +262,12 @@ export default function ContactDetailsForm() {
                 <p className="font-serif text-2xl text-[#e9b84f]">
                   Thank you for reaching out!
                 </p>
+
                 <p className="mt-3 text-sm leading-6 text-white/70">
-                  Your form interaction is complete. Connect an email
-                  service or backend API to receive booking enquiries.
+                  Your enquiry has been successfully submitted.
+                  We’ll get back to you as soon as possible.
                 </p>
+
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
@@ -224,6 +278,15 @@ export default function ContactDetailsForm() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-3.5">
+                {error && (
+                  <p
+                    role="alert"
+                    className="rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300"
+                  >
+                    {error}
+                  </p>
+                )}
+
                 <input
                   name="name"
                   type="text"
@@ -264,15 +327,16 @@ export default function ContactDetailsForm() {
                     <option value="" disabled className="bg-[#111110]">
                       Event Type *
                     </option>
-                    <option className="bg-[#111110]">Wedding</option>
-                    <option className="bg-[#111110]">Pre-Wedding</option>
-                    <option className="bg-[#111110]">Birthday</option>
-                    <option className="bg-[#111110]">Maternity</option>
-                    <option className="bg-[#111110]">Corporate Event</option>
-                    <option className="bg-[#111110]">Sports Event</option>
-                    <option className="bg-[#111110]">Product Photography</option>
-                    <option className="bg-[#111110]">Education Event</option>
-                    <option className="bg-[#111110]">Other</option>
+
+                    {data.eventTypes.map((eventType) => (
+                      <option
+                        key={eventType}
+                        value={eventType}
+                        className="bg-[#111110]"
+                      >
+                        {eventType}
+                      </option>
+                    ))}
                   </select>
 
                   <input
@@ -295,8 +359,10 @@ export default function ContactDetailsForm() {
                 <button
                   type="submit"
                   className="group flex min-h-[52px] w-full items-center justify-center gap-3 rounded-full bg-[#f4c35f] px-6 text-sm font-bold text-[#171009] transition duration-300 hover:bg-[#ffda8b] hover:shadow-[0_0_28px_rgba(233,184,79,0.2)]"
+                  disabled={submitting}
                 >
-                  Send Message
+                  {submitting ? "Sending..." : "Send Message"}
+
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -314,7 +380,7 @@ export default function ContactDetailsForm() {
                 </button>
 
                 <p className="pt-1 text-center text-[10px] leading-5 text-white/50">
-                  Your details will be used only to respond to your enquiry.
+                  {data.privacyNote}
                 </p>
               </form>
             )}
@@ -324,6 +390,7 @@ export default function ContactDetailsForm() {
 
       {/* Light gold borders */}
       <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-[#e9c878]/50 to-transparent" />
+
       <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#e9c878]/50 to-transparent" />
     </section>
   );

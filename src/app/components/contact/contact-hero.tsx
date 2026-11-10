@@ -3,14 +3,29 @@
 
 import Image from "next/image";
 
-export default function ContactHero() {
+import type {
+  ContactHeroData,
+} from "@/types/contact-page.types";
+
+interface ContactHeroProps {
+  data: ContactHeroData;
+}
+
+export default function ContactHero({ data }: ContactHeroProps) {
+  const headingWords = data.heading.trim().split(/\s+/);
+
+  const firstLine = headingWords.slice(0, 2).join(" ");
+  const remainingWords = headingWords.slice(2);
+  const highlightedText = remainingWords.pop() || "";
+  const secondLine = remainingWords.join(" ");
+
   return (
     <section className="relative isolate w-full overflow-hidden bg-[#080706] text-white">
       {/* Background image */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/images/contact-hero.png"
-          alt="Bride and groom in a beautiful wedding setting"
+          src={data.backgroundImage}
+          alt={data.backgroundImageAlt}
           fill
           priority
           sizes="100vw"
@@ -25,7 +40,7 @@ export default function ContactHero() {
 
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
 
-      {/* Hero content — existing header is not included */}
+      {/* Hero content */}
       <div className="mx-auto flex min-h-[540px] w-full max-w-[1600px] items-center px-6 pb-12 pt-36 sm:min-h-[580px] sm:px-10 sm:pb-14 sm:pt-40 lg:min-h-[610px] lg:px-[8.2%] lg:pb-16 lg:pt-44">
         <div className="max-w-[680px]">
           {/* Eyebrow */}
@@ -33,7 +48,7 @@ export default function ContactHero() {
             <span className="h-px w-9 bg-[#e8b84f]" />
 
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#edbd58] sm:text-xs">
-              Get in Touch
+              {data.eyebrow}
             </p>
 
             <span className="h-px w-9 bg-[#e8b84f]/70" />
@@ -41,19 +56,17 @@ export default function ContactHero() {
 
           {/* Main heading */}
           <h1 className="font-serif text-[clamp(2.8rem,5.2vw,5.2rem)] leading-[1.03] tracking-[-0.04em] text-[#fffdf9]">
-            Let’s Create
+            {firstLine}
             <br />
-            Something{" "}
+            {secondLine && `${secondLine} `}
             <span className="italic text-[#edbd58]">
-              Beautiful
+              {highlightedText}
             </span>
           </h1>
 
           {/* Description */}
           <p className="mt-6 max-w-[560px] text-sm leading-7 text-white/80 sm:text-base sm:leading-8">
-            We’d love to hear from you. Whether it’s a wedding, a special
-            event, a portrait session, or a creative project — let’s bring
-            your vision to life together.
+            {data.description}
           </p>
 
           {/* Decorative detail */}
@@ -66,7 +79,7 @@ export default function ContactHero() {
           </div>
 
           <p className="mt-4 text-[10px] uppercase tracking-[0.24em] text-white/50">
-            Every moment deserves to be remembered
+            {data.supportingText}
           </p>
         </div>
       </div>

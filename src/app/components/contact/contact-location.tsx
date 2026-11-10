@@ -4,25 +4,41 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function ContactLocation() {
+import type {
+  ContactLocationData,
+} from "@/types/contact-page.types";
+
+interface ContactLocationProps {
+  data: ContactLocationData;
+}
+
+export default function ContactLocation({
+  data,
+}: ContactLocationProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  const mapQuery = "Naeem Bhojani Photography, Ahmedabad, Gujarat, India";
+  const mapQuery = data.mapQuery;
 
   const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
     mapQuery
   )}&z=12&output=embed`;
 
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-    mapQuery
-  )}`;
+  const directionsUrl =
+    data.directionsUrl ||
+    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+      mapQuery
+    )}`;
+
+  const headingWords = data.heading.trim().split(/\s+/);
+  const firstLine = headingWords.slice(0, 2).join(" ");
+  const highlightedText = headingWords.slice(2).join(" ");
 
   return (
     <section className="relative isolate overflow-hidden border-y border-[#d9b866]/30 bg-[#090908] text-white">
       {/* Background image */}
       <div className="pointer-events-none absolute inset-0 -z-20">
         <Image
-          src="/images/contact-location-bg.png"
+          src={data.backgroundImage}
           alt=""
           fill
           sizes="100vw"
@@ -43,20 +59,21 @@ export default function ContactLocation() {
             <span className="h-px w-8 bg-[#e9b84f]" />
 
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#e9b84f] sm:text-xs">
-              Our Location
+              {data.eyebrow}
             </p>
 
             <span className="h-px w-8 bg-[#e9b84f]/60" />
           </div>
 
           <h2 className="font-serif text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-            Visit Our{" "}
-            <span className="italic text-[#e9b84f]">Studio</span>
+            {firstLine}{" "}
+            <span className="italic text-[#e9b84f]">
+              {highlightedText}
+            </span>
           </h2>
 
           <p className="mt-5 max-w-[490px] text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
-            We’d be happy to welcome you to our studio. Let’s meet,
-            discuss your ideas and plan something extraordinary together.
+            {data.description}
           </p>
 
           {/* Address card */}
@@ -74,6 +91,7 @@ export default function ContactLocation() {
                     stroke="currentColor"
                     strokeWidth="1.7"
                   />
+
                   <circle
                     cx="12"
                     cy="10"
@@ -89,11 +107,11 @@ export default function ContactLocation() {
                 </h3>
 
                 <p className="mt-2 text-sm leading-6 text-white/90 sm:text-base">
-                  Naeem Bhojani Photography
+                  {data.studioName}
                 </p>
 
                 <p className="text-sm leading-6 text-white/65 sm:text-base">
-                  Ahmedabad, Gujarat, India
+                  {data.address}
                 </p>
               </div>
             </div>
@@ -130,7 +148,8 @@ export default function ContactLocation() {
           {/* Location note */}
           <div className="mt-6 flex items-center gap-3 text-xs text-white/60">
             <span className="h-2 w-2 rounded-full bg-[#e9b84f]" />
-            <span>Let’s plan your next photography session.</span>
+
+            <span>{data.locationNote}</span>
           </div>
         </div>
 
@@ -154,6 +173,7 @@ export default function ContactLocation() {
                         stroke="currentColor"
                         strokeWidth="1.6"
                       />
+
                       <circle
                         cx="12"
                         cy="10"
@@ -171,7 +191,7 @@ export default function ContactLocation() {
               )}
 
               <iframe
-                title="Naeem Bhojani Photography location in Ahmedabad"
+                title={`${data.studioName} location`}
                 src={mapEmbedUrl}
                 className="absolute inset-0 h-full w-full border-0 grayscale-[0.65] contrast-[1.05]"
                 loading="lazy"
@@ -183,13 +203,14 @@ export default function ContactLocation() {
           </div>
 
           <p className="mt-3 text-right text-[10px] tracking-wide text-white/45">
-            AHMEDABAD, GUJARAT, INDIA
+            {data.mapCaption}
           </p>
         </div>
       </div>
 
       {/* Fine gold borders */}
       <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-[#e9c878]/55 to-transparent" />
+
       <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#e9c878]/55 to-transparent" />
     </section>
   );

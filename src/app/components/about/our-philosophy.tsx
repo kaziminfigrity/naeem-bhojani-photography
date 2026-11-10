@@ -3,46 +3,57 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-const philosophyImages = [
+import type { AboutPhilosophy } from "@/types/about.types";
+
+interface OurPhilosophyProps {
+  data: AboutPhilosophy;
+}
+
+const defaultImages = [
   {
     src: "/images/philosophy-wedding.png",
     alt: "Wedding details and genuine emotions",
-    position:
-      "left-[3%] top-[5%] z-10 h-[48%] w-[34%] -rotate-6",
+    position: "left-[3%] top-[5%] z-10 h-[48%] w-[34%] -rotate-6",
+    order: 1,
   },
   {
     src: "/images/philosophy-couple.png",
     alt: "Couple sharing a beautiful sunset moment",
-    position:
-      "left-[34%] top-[5%] z-20 h-[59%] w-[34%] rotate-2",
+    position: "left-[34%] top-[5%] z-20 h-[59%] w-[34%] rotate-2",
+    order: 2,
   },
   {
     src: "/images/philosophy-baby.png",
     alt: "Baby portrait photography",
-    position:
-      "right-[2%] top-[7%] z-10 h-[47%] w-[29%] rotate-[-4deg]",
+    position: "right-[2%] top-[7%] z-10 h-[47%] w-[29%] rotate-[-4deg]",
+    order: 3,
   },
   {
     src: "/images/philosophy-coffee.png",
     alt: "Warm lifestyle and detail photography",
-    position:
-      "left-[10%] bottom-[7%] z-30 h-[35%] w-[34%] rotate-3",
+    position: "left-[10%] bottom-[7%] z-30 h-[35%] w-[34%] rotate-3",
+    order: 4,
   },
   {
     src: "/images/philosophy-detail.png",
     alt: "Creative detail photography",
-    position:
-      "left-[42%] bottom-[3%] z-20 h-[32%] w-[23%] -rotate-3",
+    position: "left-[42%] bottom-[3%] z-20 h-[32%] w-[23%] -rotate-3",
+    order: 5,
   },
   {
     src: "/images/philosophy-event.png",
     alt: "Corporate event photography",
-    position:
-      "right-[1%] bottom-[7%] z-30 h-[38%] w-[35%] rotate-2",
+    position: "right-[1%] bottom-[7%] z-30 h-[38%] w-[35%] rotate-2",
+    order: 6,
   },
 ];
 
-export default function OurPhilosophy() {
+export default function OurPhilosophy({ data }: OurPhilosophyProps) {
+  const philosophyImages =
+    data.images?.length > 0
+      ? [...data.images].sort((a, b) => a.order - b.order)
+      : defaultImages;
+
   return (
     <section
       id="our-philosophy"
@@ -55,28 +66,28 @@ export default function OurPhilosophy() {
         {/* Left: Content */}
         <div className="relative z-40 max-w-[580px]">
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-[#deb575] sm:text-sm">
-            Our Philosophy
+            {data.eyebrow || "Our Philosophy"}
           </p>
 
           <h2 className="font-serif text-4xl leading-[1.08] sm:text-5xl lg:text-[54px] xl:text-[64px]">
-            Real People
+            {data.headingLine1 || "Real People"}
             <br />
-            <span className="text-[#deb575]">Real Moments</span>
+            <span className="text-[#deb575]">
+              {data.highlightText || "Real Moments"}
+            </span>
           </h2>
 
           <p className="mt-7 max-w-[560px] text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
-            We believe in capturing genuine emotions, real connections,
-            and the true essence of every moment. Whether it&apos;s a
-            wedding, a birthday, a corporate event or a simple portrait,
-            our approach remains the same — authentic, creative and
-            timeless.
+            {data.description ||
+              "We believe in capturing genuine emotions, real connections, and the true essence of every moment. Whether it's a wedding, a birthday, a corporate event or a simple portrait, our approach remains the same — authentic, creative and timeless."}
           </p>
 
           <Link
-            href="/services"
+            href={data.buttonLink || "/services"}
             className="group mt-8 inline-flex items-center gap-5 rounded-full bg-[#f2c57f] px-7 py-4 text-sm font-semibold text-black transition duration-300 hover:bg-white sm:px-9"
           >
-            Our Philosophy
+            {data.buttonText || "Our Philosophy"}
+
             <ArrowRight
               size={19}
               className="transition-transform duration-300 group-hover:translate-x-1"

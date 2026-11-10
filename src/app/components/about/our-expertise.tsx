@@ -3,58 +3,95 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-const services = [
+import type { AboutExpertise } from "@/types/about.types";
+
+interface OurExpertiseProps {
+  data: AboutExpertise;
+}
+
+const defaultServices = [
   {
     title: "Wedding",
     subtitle: "Photography",
     image: "/images/service-wedding.png",
     alt: "Elegant wedding couple photography",
+    link: "/services",
+    order: 1,
+    isActive: true,
   },
   {
     title: "Pre-Wedding",
     subtitle: "Photography",
     image: "/images/service-prewedding.png",
     alt: "Romantic pre-wedding couple photography",
+    link: "/services",
+    order: 2,
+    isActive: true,
   },
   {
     title: "Birthday",
     subtitle: "Photography",
     image: "/images/service-birthday.png",
     alt: "Birthday celebration photography",
+    link: "/services",
+    order: 3,
+    isActive: true,
   },
   {
     title: "Maternity",
     subtitle: "Photography",
     image: "/images/service-maternity.png",
     alt: "Maternity portrait photography",
+    link: "/services",
+    order: 4,
+    isActive: true,
   },
   {
     title: "Family Shoot",
     subtitle: "",
     image: "/images/service-family.png",
     alt: "Family portrait photography",
+    link: "/services",
+    order: 5,
+    isActive: true,
   },
   {
     title: "Product",
     subtitle: "Photography",
     image: "/images/service-product.png",
     alt: "Premium product photography",
+    link: "/services",
+    order: 6,
+    isActive: true,
   },
   {
     title: "Corporate",
     subtitle: "Events",
     image: "/images/service-corporate.png",
     alt: "Corporate event photography",
+    link: "/services",
+    order: 7,
+    isActive: true,
   },
   {
     title: "Sports",
     subtitle: "Photography",
     image: "/images/service-sports.png",
     alt: "Sports action photography",
+    link: "/services",
+    order: 8,
+    isActive: true,
   },
 ];
 
-export default function OurExpertise() {
+export default function OurExpertise({ data }: OurExpertiseProps) {
+  const expertiseServices =
+    data.services?.length > 0
+      ? [...data.services]
+          .filter((service) => service.isActive)
+          .sort((a, b) => a.order - b.order)
+      : defaultServices;
+
   return (
     <section className="relative isolate overflow-hidden bg-[#080706] py-16 text-white sm:py-20 lg:py-24">
       {/* Background Decorations */}
@@ -64,28 +101,27 @@ export default function OurExpertise() {
         {/* Left: Section Introduction */}
         <div className="max-w-[620px]">
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-[#deb575] sm:text-sm">
-            Our Expertise
+            {data.eyebrow || "Our Expertise"}
           </p>
 
           <h2 className="font-serif text-4xl leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[64px]">
-            More Than
+            {data.headingLine1 || "More Than"}
             <br />
-            <span className="text-[#deb575]">Just Weddings</span>
+            <span className="text-[#deb575]">
+              {data.highlightText || "Just Weddings"}
+            </span>
           </h2>
 
           <p className="mt-6 max-w-[580px] text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
-            From weddings to corporate events, from birthday celebrations
-            to product shoots, we cover a wide range of photography
-            services. Each category brings a new story, a new set of
-            emotions, and a new creative challenge — and that&apos;s what
-            makes our journey exciting.
+            {data.description ||
+              "From weddings to corporate events, from birthday celebrations to product shoots, we cover a wide range of photography services. Each category brings a new story, a new set of emotions, and a new creative challenge — and that's what makes our journey exciting."}
           </p>
 
           <Link
-            href="/services"
+            href={data.buttonLink || "/services"}
             className="group mt-8 inline-flex min-h-14 items-center gap-5 rounded-full bg-[#f2c57f] px-7 py-4 text-sm font-semibold text-black transition-all duration-300 hover:bg-white sm:px-9"
           >
-            Explore Our Services
+            {data.buttonText || "Explore Our Services"}
 
             <ArrowRight
               size={20}
@@ -96,10 +132,10 @@ export default function OurExpertise() {
 
         {/* Right: Photography Service Grid */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-4">
-          {services.map((service) => (
+          {expertiseServices.map((service) => (
             <Link
               key={service.title}
-              href="/services"
+              href={service.link || data.buttonLink || "/services"}
               aria-label={`${service.title} ${service.subtitle}`.trim()}
               className="group relative isolate aspect-[0.82/1] overflow-hidden rounded-sm border border-[#b99252]/70 bg-[#15120e] sm:aspect-[0.9/1] xl:aspect-[0.78/1]"
             >

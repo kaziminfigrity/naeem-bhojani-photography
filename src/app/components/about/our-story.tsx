@@ -1,34 +1,53 @@
 
 import Image from "next/image";
 
-const storyImages = [
+import type { AboutStory } from "@/types/about.types";
+
+interface OurStoryProps {
+  data: AboutStory;
+}
+
+const defaultImages = [
   {
     src: "/images/Smiling Event Photographer with Camera Rig.png",
     alt: "Naeem Bhojani working with his camera",
-    position:
-      "left-[2%] top-[5%] z-10 h-[88%] w-[57%] -rotate-2",
+    position: "left-[2%] top-[5%] z-10 h-[88%] w-[57%] -rotate-2",
+    order: 1,
   },
   {
     src: "/images/Golden Bokeh Indian Wedding Portrait.png",
     alt: "Wedding couple photography",
-    position:
-      "left-[53%] top-[7%] z-20 h-[53%] w-[39%] rotate-2",
+    position: "left-[53%] top-[7%] z-20 h-[53%] w-[39%] rotate-2",
+    order: 2,
   },
   {
     src: "/images/Whimsical Garden Baby Portrait.png",
     alt: "Baby portrait photography",
-    position:
-      "left-[43%] top-[51%] z-30 h-[39%] w-[30%] -rotate-3",
+    position: "left-[43%] top-[51%] z-30 h-[39%] w-[30%] -rotate-3",
+    order: 3,
   },
   {
     src: "/images/Luxury Chronograph on Golden Stone.png",
     alt: "Luxury product photography",
-    position:
-      "left-[68%] top-[54%] z-20 h-[38%] w-[29%] rotate-2",
+    position: "left-[68%] top-[54%] z-20 h-[38%] w-[29%] rotate-2",
+    order: 4,
   },
 ];
 
-export default function OurStory() {
+export default function OurStory({ data }: OurStoryProps) {
+  const storyImages =
+    data.images?.length > 0
+      ? [...data.images].sort((a, b) => a.order - b.order)
+      : defaultImages;
+
+  const paragraphs =
+    data.paragraphs?.length > 0
+      ? data.paragraphs
+      : [
+          "Photography has always been more than just a profession for me — it's a passion, a way to see the world, and a way to tell stories. What started as a love for capturing moments slowly turned into a full-time journey, allowing me to be part of people's most important milestones.",
+          "Over the years, I have had the privilege of working with wonderful clients, witnessing beautiful stories, and creating memories that last a lifetime. Every click is driven by a deep passion for detail, a love for real emotions, and a commitment to deliver timeless images.",
+        ];
+
   return (
     <section
       id="our-story"
@@ -61,39 +80,29 @@ export default function OurStory() {
         {/* Right: Story Content */}
         <div className="relative z-40 mx-auto w-full max-w-[650px] lg:mx-0">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#deb575] sm:text-sm">
-            Our Story
+            {data.eyebrow || "Our Story"}
           </p>
 
           <h2 className="font-serif text-4xl leading-[1.12] sm:text-5xl lg:text-[54px] xl:text-[64px]">
-            A Journey
+            {data.headingLine1 || "A Journey"}
             <br />
-            Driven by{" "}
-            <span className="text-[#deb575]">Passion</span>
+            {data.headingLine2 || "Driven by"}{" "}
+            <span className="text-[#deb575]">
+              {data.highlightText || "Passion"}
+            </span>
           </h2>
 
           <div className="mt-7 space-y-5 text-sm leading-7 text-white/70 sm:text-base sm:leading-8">
-            <p>
-              Photography has always been more than just a profession for
-              me — it&apos;s a passion, a way to see the world, and a way
-              to tell stories. What started as a love for capturing moments
-              slowly turned into a full-time journey, allowing me to be
-              part of people&apos;s most important milestones.
-            </p>
-
-            <p>
-              Over the years, I have had the privilege of working with
-              wonderful clients, witnessing beautiful stories, and creating
-              memories that last a lifetime. Every click is driven by a
-              deep passion for detail, a love for real emotions, and a
-              commitment to deliver timeless images.
-            </p>
+            {paragraphs.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
           </div>
 
           {/* Decorative Signature Line */}
           <div className="mt-8 flex items-center gap-4">
             <span className="h-px w-16 bg-[#deb575]" />
             <span className="font-serif text-lg italic text-[#deb575]">
-              Every frame tells a story
+              {data.signatureText || "Every frame tells a story"}
             </span>
           </div>
         </div>

@@ -1,0 +1,38 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "seed:admin": "node src/scripts/createAdmin.js",
+    "admin:update": "node src/scripts/updateAdmin.js",
+    "seed:about": "node scripts/seedAbout.js",
+    "seed:services": "node scripts/seed-services.js",
+    "seed:testimonials": "node scripts/seed-testimonials.js",
+    "seed:contact": "node scripts/seed-contact.js",
+    "seed:header-footer": "node scripts/seed-header-footer.js",
+    "seed:gallery-signature": "node scripts/seed-gallery-signature.js",
+    "seed:gallery-signature-image": "node scripts/update-gallery-signature-image.js",
+    "seed:gallery": "node scripts/seed-gallery.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "multer": "^2.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

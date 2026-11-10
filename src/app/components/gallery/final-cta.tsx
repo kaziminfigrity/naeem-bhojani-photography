@@ -1,23 +1,33 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import type { GalleryFinalCTA as GalleryFinalCTAData } from "@/types/gallery.types";
 
-export default function FinalCTA() {
+interface FinalCTAProps {
+  data: GalleryFinalCTAData;
+}
+
+export default function FinalCTA({ data }: FinalCTAProps) {
+  const headingWords = data.heading.trim().split(/\s+/);
+  const firstLine = headingWords.slice(0, 3).join(" ");
+  const highlightedText = headingWords.slice(3).join(" ");
+
   return (
     <section className="relative isolate w-full overflow-hidden bg-[#080706] text-white">
       {/* Full background image */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/images/final-cta-bg.png"
-          alt="Elegant photography setup with wedding photographs and camera"
+          src={data.backgroundImage}
+          alt={data.backgroundImageAlt}
           fill
           sizes="100vw"
           className="object-cover object-center"
         />
       </div>
 
-      {/* Dark overlay for text readability */}
+      {/* Dark overlay */}
       <div className="absolute inset-0 -z-10 bg-black/45" />
 
       {/* Soft central shadow */}
@@ -29,32 +39,32 @@ export default function FinalCTA() {
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="h-px w-7 bg-[#e7bb70]" />
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#efc779] sm:text-xs">
-              Let’s Create Together
+              {data.eyebrow}
             </p>
             <span className="h-px w-7 bg-[#e7bb70]" />
           </div>
 
           {/* Heading */}
           <h2 className="font-serif text-3xl leading-[1.12] tracking-tight text-[#fffaf1] sm:text-4xl md:text-5xl lg:text-6xl">
-            Turn Your Moments
+            {firstLine}
             <br />
             <span className="mt-1 inline-block italic text-[#efbd69]">
-              into Timeless Memories
+              {highlightedText}
             </span>
           </h2>
 
           {/* Description */}
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-white/80 sm:text-base sm:leading-7">
-            Looking to create your own beautiful story? Get in touch with us
-            today and let’s plan your next photography session.
+            {data.description}
           </p>
 
           {/* CTA button */}
           <Link
-            href="/contact"
+            href={data.buttonHref}
             className="group mt-7 inline-flex min-h-12 items-center justify-center gap-4 rounded-full bg-gradient-to-r from-[#f3c875] to-[#e9ae4e] px-7 py-3 text-sm font-semibold text-[#171009] shadow-[0_5px_25px_rgba(231,181,89,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(231,181,89,0.3)] sm:px-9"
           >
-            Book a Session
+            {data.buttonLabel}
+
             <svg
               viewBox="0 0 24 24"
               fill="none"

@@ -4,15 +4,27 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function FinalStoryCTA() {
+import type {
+  TestimonialsFinalCTA as FinalCTAData,
+} from "@/types/testimonials.types";
+
+interface FinalStoryCTAProps {
+  data: FinalCTAData;
+}
+
+export default function FinalStoryCTA({ data }: FinalStoryCTAProps) {
+  const headingWords = data.heading.trim().split(/\s+/);
+
+  const firstLine = headingWords.slice(0, 3).join(" ");
+  const highlightedText = headingWords.slice(3).join(" ");
+
   return (
     <section className="relative isolate w-full overflow-hidden border-y border-[#d9b866]/40 bg-[#080706] text-white">
-
       {/* Main background image */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/images/final-story-cta.png"
-          alt="Photography memories and a collection of beautiful moments"
+          src={data.backgroundImage}
+          alt={data.backgroundImageAlt}
           fill
           sizes="100vw"
           className="object-cover object-center"
@@ -27,9 +39,7 @@ export default function FinalStoryCTA() {
 
       {/* Content */}
       <div className="mx-auto flex min-h-[400px] max-w-[1600px] items-center justify-center px-5 py-16 text-center sm:min-h-[460px] sm:px-8 sm:py-20 lg:min-h-[500px]">
-
         <div className="mx-auto max-w-4xl">
-
           {/* Camera icon */}
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[#e9b84f]/70 bg-black/50 text-[#e9b84f] sm:h-16 sm:w-16">
             <svg
@@ -56,30 +66,29 @@ export default function FinalStoryCTA() {
 
           {/* Eyebrow */}
           <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#edbd58] sm:text-xs">
-            Let’s Create Together
+            {data.eyebrow}
           </p>
 
           {/* Heading */}
           <h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.7rem)] leading-[1.05] tracking-tight text-[#fffaf2]">
-            Turn Your Moments
+            {firstLine}
             <br />
             <span className="italic text-[#efbd58]">
-              into Timeless Memories
+              {highlightedText}
             </span>
           </h2>
 
           {/* Description */}
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-white/80 sm:text-base sm:leading-7">
-            Looking to create your own beautiful story? Get in touch
-            with us today and let’s plan your next photography session.
+            {data.description}
           </p>
 
           {/* CTA button */}
           <Link
-            href="/contact"
+            href={data.buttonHref}
             className="group mt-8 inline-flex min-h-12 items-center justify-center gap-4 rounded-full bg-gradient-to-r from-[#f3bd55] to-[#ffda83] px-7 py-3 text-sm font-semibold text-[#171009] shadow-[0_0_25px_rgba(239,189,88,0.18)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(239,189,88,0.35)] sm:px-9"
           >
-            Book a Session
+            {data.buttonLabel}
 
             <svg
               viewBox="0 0 24 24"
@@ -96,7 +105,6 @@ export default function FinalStoryCTA() {
               />
             </svg>
           </Link>
-
         </div>
       </div>
 
@@ -104,7 +112,6 @@ export default function FinalStoryCTA() {
       <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-[#e8c878]/50 to-transparent" />
 
       <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#e8c878]/50 to-transparent" />
-
     </section>
   );
 }

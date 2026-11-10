@@ -4,33 +4,63 @@ import {
   UsersRound,
   Star,
   Heart,
+  Award,
 } from "lucide-react";
 
-const features = [
+import type { LucideIcon } from "lucide-react";
+import type { AboutWhyChooseUs } from "@/types/about.types";
+
+interface WhyChooseUsProps {
+  data: AboutWhyChooseUs;
+}
+
+const iconMap: Record<string, LucideIcon> = {
+  camera: Camera,
+  "users-round": UsersRound,
+  star: Star,
+  heart: Heart,
+  award: Award,
+};
+
+const defaultFeatures = [
   {
     title: "Professional Approach",
-    description:
-      "High-quality photography with attention to detail",
-    Icon: Camera,
+    description: "High-quality photography with attention to detail",
+    icon: "camera",
+    order: 1,
+    isActive: true,
   },
   {
     title: "Personal Connection",
     description: "We take time to understand your story",
-    Icon: UsersRound,
+    icon: "users-round",
+    order: 2,
+    isActive: true,
   },
   {
     title: "Creative Vision",
     description: "Unique and artistic style for every event",
-    Icon: Star,
+    icon: "star",
+    order: 3,
+    isActive: true,
   },
   {
     title: "Timeless Memories",
     description: "Images that last a lifetime",
-    Icon: Heart,
+    icon: "heart",
+    order: 4,
+    isActive: true,
   },
 ];
 
-export default function WhyChooseUs() {
+export default function WhyChooseUs({ data }: WhyChooseUsProps) {
+  const features =
+    data.features?.length > 0
+      ? [...data.features]
+          .filter((feature) => feature.isActive)
+          .sort((a, b) => a.order - b.order)
+      : defaultFeatures;
+
   return (
     <section
       className="relative isolate overflow-hidden bg-black py-16 text-white sm:py-20 lg:py-24"
@@ -44,7 +74,7 @@ export default function WhyChooseUs() {
         <div className="max-w-[700px]">
           <div className="mb-6 flex items-center gap-5">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#e5b967] sm:text-sm">
-              Why Choose Us
+              {data.eyebrow || "Why Choose Us"}
             </p>
             <span className="h-px w-16 bg-[#d6b477]" />
           </div>
@@ -53,50 +83,52 @@ export default function WhyChooseUs() {
             id="why-choose-us-heading"
             className="font-serif text-4xl leading-[1.1] sm:text-5xl lg:text-[54px] xl:text-[68px]"
           >
-            Turning Moments
+            {data.headingLine1 || "Turning Moments"}
             <br />
             <span className="text-[#e5b967]">
-              Into Memories
+              {data.highlightText || "Into Memories"}
             </span>
           </h2>
 
           <p className="mt-7 max-w-[650px] text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
-            We focus on quality, creativity and a personal approach
-            to make your experience comfortable and memorable.
-            Our goal is not just to take photos, but to create
-            stories that you will cherish forever.
+            {data.description ||
+              "We focus on quality, creativity and a personal approach to make your experience comfortable and memorable. Our goal is not just to take photos, but to create stories that you will cherish forever."}
           </p>
         </div>
 
         {/* Right: Features */}
         <div className="relative lg:border-l lg:border-[#d6b477]/40 lg:pl-10 xl:pl-16">
           <div className="space-y-8 sm:space-y-9">
-            {features.map(({ title, description, Icon }) => (
-              <div
-                key={title}
-                className="group flex items-center gap-5 sm:gap-7"
-              >
-                {/* Gold Icon */}
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center sm:h-[68px] sm:w-[68px]">
-                  <Icon
-                    aria-hidden="true"
-                    strokeWidth={1.6}
-                    className="h-9 w-9 text-[#e5b967] transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
-                  />
-                </div>
+            {features.map((feature) => {
+              const Icon = iconMap[feature.icon?.toLowerCase()] || Camera;
 
-                {/* Feature Text */}
-                <div>
-                  <h3 className="text-base font-semibold text-white sm:text-lg lg:text-xl">
-                    {title}
-                  </h3>
+              return (
+                <div
+                  key={feature.title}
+                  className="group flex items-center gap-5 sm:gap-7"
+                >
+                  {/* Gold Icon */}
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center sm:h-[68px] sm:w-[68px]">
+                    <Icon
+                      aria-hidden="true"
+                      strokeWidth={1.6}
+                      className="h-9 w-9 text-[#e5b967] transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
+                    />
+                  </div>
 
-                  <p className="mt-1.5 text-sm leading-6 text-white/70 sm:text-base">
-                    {description}
-                  </p>
+                  {/* Feature Text */}
+                  <div>
+                    <h3 className="text-base font-semibold text-white sm:text-lg lg:text-xl">
+                      {feature.title}
+                    </h3>
+
+                    <p className="mt-1.5 text-sm leading-6 text-white/70 sm:text-base">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

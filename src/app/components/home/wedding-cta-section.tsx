@@ -1,35 +1,110 @@
 
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ArrowRight, Play } from "lucide-react";
 
-const weddingImages = [
-  {
-    src: "/images/Golden Hour Indian Wedding Portrait.png",
-    alt: "Wedding couple portrait",
-  },
-  {
-    src: "/images/wedding-detail.png",
-    alt: "Wedding celebration",
-  },
-  {
-    src: "/images/wedding-celebration.png",
-    alt: "Traditional wedding moments",
-  },
-  {
-    src: "/images/hero-wedding.png",
-    alt: "Romantic wedding portrait",
-  },
-];
+import { getHomepageContent } from "@/services/api/homepage.api";
+import type { WeddingCTASectionData } from "@/types/homepage.types";
+
+const defaultSection: WeddingCTASectionData = {
+  eyebrow: "LET’S CREATE BEAUTIFUL CHAPTERS",
+  heading: "Ready to Capture Your Special Moments?",
+  description:
+    "Get in touch today and let us turn your moments into timeless memories.",
+  backgroundImage: "/images/Golden Foreheads, Forever Love.png",
+  backgroundImageAlt: "Bride and groom wedding portrait",
+  storyTitle: "Your Story",
+  storySubtitle: "Through Our Lens",
+  showreelHref: "/portfolio",
+  primaryButtonLabel: "Book a Session",
+  primaryButtonHref: "/contact",
+  secondaryButtonLabel: "Contact Me",
+  secondaryButtonHref: "/contact",
+  thumbnails: [
+    {
+      image: "/images/Golden Hour Indian Wedding Portrait.png",
+      alt: "Wedding couple portrait",
+      order: 1,
+    },
+    {
+      image: "/images/wedding-detail.png",
+      alt: "Wedding celebration",
+      order: 2,
+    },
+    {
+      image: "/images/wedding-celebration.png",
+      alt: "Traditional wedding moments",
+      order: 3,
+    },
+    {
+      image: "/images/hero-wedding.png",
+      alt: "Romantic wedding portrait",
+      order: 4,
+    },
+  ],
+};
 
 export default function WeddingCTASection() {
+  const [section, setSection] =
+    useState<WeddingCTASectionData>(defaultSection);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchWeddingCTA = async () => {
+      try {
+        const response = await getHomepageContent();
+
+        if (
+          isMounted &&
+          response.success &&
+          response.data?.weddingCTA
+        ) {
+          setSection({
+            ...defaultSection,
+            ...response.data.weddingCTA,
+          });
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch wedding CTA section:",
+          error
+        );
+      }
+    };
+
+    fetchWeddingCTA();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const thumbnails = (
+    section.thumbnails?.length
+      ? section.thumbnails
+      : defaultSection.thumbnails
+  )
+    .filter((image) => image.image)
+    .sort((a, b) => a.order - b.order);
+
   return (
     <section className="relative isolate min-h-[580px] overflow-hidden bg-[#090706] text-white lg:min-h-[640px]">
-      {/* Full background image */}
+
+      {/* FULL BACKGROUND IMAGE */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/images/Golden Foreheads, Forever Love.png"
-          alt="Bride and groom wedding portrait"
+          src={
+            section.backgroundImage ||
+            defaultSection.backgroundImage
+          }
+          alt={
+            section.backgroundImageAlt ||
+            defaultSection.backgroundImageAlt
+          }
           fill
           priority
           sizes="100vw"
@@ -37,12 +112,14 @@ export default function WeddingCTASection() {
         />
       </div>
 
-      {/* Dark overlay for text readability on the left */}
+      {/* DARK OVERLAYS */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/95 via-black/80 via-40% to-transparent lg:w-2/3" />
+
       <div className="absolute inset-0 -z-10 bg-black/45 lg:hidden" />
 
       <div className="mx-auto flex min-h-[580px] max-w-[1780px] flex-col justify-between px-5 py-14 sm:px-8 sm:py-16 lg:min-h-[640px] lg:px-12 lg:py-18">
-        {/* Top Right: Story title and play button */}
+
+        {/* TOP RIGHT: STORY TITLE AND PLAY BUTTON */}
         <div className="flex justify-end">
           <div className="hidden items-center gap-4 lg:flex">
             <span
@@ -52,45 +129,46 @@ export default function WeddingCTASection() {
               }}
               className="text-right text-2xl italic leading-snug tracking-wide text-white/85 sm:text-3xl"
             >
-              Your Story
+              {section.storyTitle}
               <br />
-              Through Our Lens
+              {section.storySubtitle}
             </span>
 
             <Link
-              href="/portfolio"
+              href={section.showreelHref || "/portfolio"}
               aria-label="Explore wedding portfolio"
               className="flex size-11 items-center justify-center rounded-full bg-[#deb575] text-black shadow-lg transition-transform hover:scale-110"
             >
-              <Play size={16} fill="currentColor" className="ml-0.5" />
+              <Play
+                size={16}
+                fill="currentColor"
+                className="ml-0.5"
+              />
             </Link>
           </div>
         </div>
 
-        {/* Center / Left Content */}
+        {/* CENTER / LEFT CONTENT */}
         <div className="my-auto max-w-2xl py-6">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#deb575] sm:text-xs">
-            LET’S CREATE BEAUTIFUL CHAPTERS
+            {section.eyebrow}
           </p>
 
           <h2 className="font-serif text-4xl leading-[1.1] sm:text-5xl md:text-6xl xl:text-7xl">
-            Ready to Capture
-            <br />
-            Your{" "}
-            <span className="text-[#deb575]">Special Moments?</span>
+            {section.heading}
           </h2>
 
           <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
-            Get in touch today and let us turn your moments into timeless
-            memories.
+            {section.description}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
-              href="/contact"
+              href={section.primaryButtonHref || "/contact"}
               className="group inline-flex items-center justify-center gap-3 rounded-full bg-[#deb575] px-7 py-3.5 text-sm font-semibold text-black transition-all hover:bg-[#e8c387] sm:px-8 sm:py-4"
             >
-              Book a Session
+              {section.primaryButtonLabel || "Book a Session"}
+
               <ArrowRight
                 size={18}
                 className="transition-transform group-hover:translate-x-1"
@@ -98,10 +176,11 @@ export default function WeddingCTASection() {
             </Link>
 
             <Link
-              href="/contact"
+              href={section.secondaryButtonHref || "/contact"}
               className="group inline-flex items-center justify-center gap-3 rounded-full border border-white/50 px-7 py-3.5 text-sm font-medium text-white transition-all hover:border-[#deb575] hover:bg-white/10 sm:px-8 sm:py-4"
             >
-              Contact Me
+              {section.secondaryButtonLabel || "Contact Me"}
+
               <ArrowRight
                 size={18}
                 className="transition-transform group-hover:translate-x-1"
@@ -110,9 +189,10 @@ export default function WeddingCTASection() {
           </div>
         </div>
 
-        {/* Bottom area: Thumbnails on bottom right + Mobile Story button */}
+        {/* BOTTOM AREA: STORY BUTTON AND THUMBNAILS */}
         <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end lg:justify-end">
-          {/* Mobile Story title & play button */}
+
+          {/* MOBILE STORY TITLE AND PLAY BUTTON */}
           <div className="flex items-center gap-3 lg:hidden">
             <span
               style={{
@@ -121,28 +201,32 @@ export default function WeddingCTASection() {
               }}
               className="text-xl italic tracking-wide text-white/85"
             >
-              Your Story Through Our Lens
+              {section.storyTitle} {section.storySubtitle}
             </span>
 
             <Link
-              href="/portfolio"
+              href={section.showreelHref || "/portfolio"}
               aria-label="Explore wedding portfolio"
               className="flex size-9 items-center justify-center rounded-full bg-[#deb575] text-black shadow-lg"
             >
-              <Play size={14} fill="currentColor" className="ml-0.5" />
+              <Play
+                size={14}
+                fill="currentColor"
+                className="ml-0.5"
+              />
             </Link>
           </div>
 
-          {/* 4 Wedding Thumbnails */}
+          {/* WEDDING THUMBNAILS */}
           <div className="grid w-full max-w-sm grid-cols-4 gap-2.5 sm:max-w-md sm:gap-3 lg:w-[380px] xl:w-[420px]">
-            {weddingImages.map((image) => (
+            {thumbnails.map((image, index) => (
               <div
-                key={image.src}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/25 transition-all duration-300 hover:border-[#deb575] hover:scale-105"
+                key={`${image.image}-${image.order}`}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/25 transition-all duration-300 hover:scale-105 hover:border-[#deb575]"
               >
                 <Image
-                  src={image.src}
-                  alt={image.alt}
+                  src={image.image}
+                  alt={image.alt || "Wedding photography"}
                   fill
                   sizes="(max-width: 640px) 22vw, 100px"
                   className="object-cover transition duration-500 group-hover:scale-110"
@@ -155,4 +239,3 @@ export default function WeddingCTASection() {
     </section>
   );
 }
-

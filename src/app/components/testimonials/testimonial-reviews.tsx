@@ -2,46 +2,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const testimonials = [
-  {
-    name: "Priya Mehta",
-    service: "Wedding Photography",
-    review:
-      "Absolutely stunning work! They captured our emotions so beautifully. The entire experience was smooth and truly memorable.",
-  },
-  {
-    name: "Rohan Shah",
-    service: "Pre-Wedding Photography",
-    review:
-      "Professional, creative and incredibly talented. Highly recommended! Every moment was captured perfectly.",
-  },
-  {
-    name: "Ayesha Khan",
-    service: "Wedding Photography",
-    review:
-      "They made our special day even more memorable. Truly amazing team! We will cherish these photographs forever.",
-  },
-  {
-    name: "Rahul Desai",
-    service: "Family Photography",
-    review:
-      "The team made us feel comfortable and captured beautiful, natural moments. We absolutely love the results.",
-  },
-  {
-    name: "Sana Merchant",
-    service: "Engagement Photography",
-    review:
-      "Every detail was handled with care. The photographs look elegant, timeless and exactly as we imagined.",
-  },
-  {
-    name: "Arjun Patel",
-    service: "Event Photography",
-    review:
-      "Amazing attention to detail and a wonderful experience from beginning to end. Highly recommended.",
-  },
-];
+import type { ReviewsSection as ReviewsSectionData } from "@/types/testimonials.types";
+
+interface TestimonialReviewsProps {
+  data: ReviewsSectionData;
+}
 
 function PersonIcon() {
   return (
@@ -80,16 +47,39 @@ function QuoteIcon() {
   );
 }
 
-export default function TestimonialReviews() {
+export default function TestimonialReviews({
+  data,
+}: TestimonialReviewsProps) {
   const [page, setPage] = useState(0);
 
-  const visibleReviews = testimonials.slice(
-    page * 3,
-    page * 3 + 3
+  // Active testimonials sorted by order
+  const activeTestimonials = useMemo(() => {
+    return data.testimonials
+      .filter((item) => item.isActive)
+      .sort((a, b) => a.order - b.order);
+  }, [data.testimonials]);
+
+  // Pagination
+  const reviewsPerPage = 3;
+
+  const totalPages = Math.ceil(
+    activeTestimonials.length / reviewsPerPage
+  );
+
+  const currentPage =
+    totalPages > 0 ? Math.min(page, totalPages - 1) : 0;
+
+  const visibleReviews = activeTestimonials.slice(
+    currentPage * reviewsPerPage,
+    currentPage * reviewsPerPage + reviewsPerPage
   );
 
   const changePage = (direction: number) => {
-    setPage((current) => (current + direction + 2) % 2);
+    if (totalPages <= 1) return;
+
+    setPage(
+      (current) => (current + direction + totalPages) % totalPages
+    );
   };
 
   return (
@@ -97,7 +87,7 @@ export default function TestimonialReviews() {
       {/* Full-section background image */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/images/testimonials-bg.png"
+          src={data.backgroundImage}
           alt=""
           fill
           sizes="100vw"
@@ -105,7 +95,7 @@ export default function TestimonialReviews() {
         />
       </div>
 
-      {/* Dark overlay keeps text and cards readable */}
+      {/* Dark overlay */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-black/70" />
 
       {/* Soft gold ambience */}
@@ -120,22 +110,21 @@ export default function TestimonialReviews() {
             <span className="h-px w-8 bg-[#e9b84f]" />
 
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#e9b84f] sm:text-xs">
-              What Our Clients Say
+              {data.eyebrow}
             </p>
 
             <span className="h-px w-8 bg-[#e9b84f]" />
           </div>
 
           <h2 className="font-serif text-[clamp(2rem,4.5vw,4rem)] leading-tight tracking-tight">
-            Words That{" "}
+            {data.heading.split(" ").slice(0, 2).join(" ")}{" "}
             <span className="italic text-[#e9b84f]">
-              Mean the Most
+              {data.heading.split(" ").slice(2).join(" ")}
             </span>
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/75 sm:text-base sm:leading-7">
-            Every message reminds us why we do what we love.
-            Here are some heartfelt words from our clients.
+            {data.description}
           </p>
         </div>
 
@@ -145,8 +134,9 @@ export default function TestimonialReviews() {
           <button
             type="button"
             onClick={() => changePage(-1)}
+            disabled={totalPages <= 1}
             aria-label="Previous testimonials"
-            className="absolute -left-2 top-1/2 z-20 hidden h-10 w-10 -translate-x-full -translate-y-1/2 items-center justify-center rounded-full border border-[#d7a747] text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black xl:flex"
+            className="absolute -left-2 top-1/2 z-20 hidden h-10 w-10 -translate-x-full -translate-y-1/2 items-center justify-center rounded-full border border-[#d7a747] text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black disabled:cursor-not-allowed disabled:opacity-40 xl:flex"
           >
             <svg
               viewBox="0 0 24 24"
@@ -167,7 +157,7 @@ export default function TestimonialReviews() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {visibleReviews.map((item) => (
               <article
-                key={item.name}
+                key={item._id || item.name}
                 className="group relative flex h-full flex-col rounded-xl border border-[#bd8d35]/65 bg-gradient-to-br from-[#15110b]/95 to-[#090807]/95 p-5 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-[#edbd58] hover:shadow-[0_15px_45px_rgba(0,0,0,0.35)] sm:p-6"
               >
                 {/* Quote icon and person icon */}
@@ -183,13 +173,22 @@ export default function TestimonialReviews() {
                   <span className="w-10" />
                 </div>
 
-                {/* Star rating */}
+                {/* Dynamic star rating */}
                 <div
                   className="mt-5 flex justify-center gap-1 text-xl text-[#f3b900]"
-                  aria-label="5 out of 5 stars"
+                  aria-label={`${item.rating} out of 5 stars`}
                 >
                   {Array.from({ length: 5 }, (_, index) => (
-                    <span key={index}>★</span>
+                    <span
+                      key={index}
+                      className={
+                        index < item.rating
+                          ? "text-[#f3b900]"
+                          : "text-white/25"
+                      }
+                    >
+                      ★
+                    </span>
                   ))}
                 </div>
 
@@ -214,12 +213,20 @@ export default function TestimonialReviews() {
             ))}
           </div>
 
+          {/* Empty state */}
+          {visibleReviews.length === 0 && (
+            <div className="py-12 text-center text-sm text-white/60">
+              No testimonials available at the moment.
+            </div>
+          )}
+
           {/* Next arrow — desktop */}
           <button
             type="button"
             onClick={() => changePage(1)}
+            disabled={totalPages <= 1}
             aria-label="Next testimonials"
-            className="absolute -right-2 top-1/2 z-20 hidden h-10 w-10 translate-x-full -translate-y-1/2 items-center justify-center rounded-full border border-[#d7a747] text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black xl:flex"
+            className="absolute -right-2 top-1/2 z-20 hidden h-10 w-10 translate-x-full -translate-y-1/2 items-center justify-center rounded-full border border-[#d7a747] text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black disabled:cursor-not-allowed disabled:opacity-40 xl:flex"
           >
             <svg
               viewBox="0 0 24 24"
@@ -238,42 +245,46 @@ export default function TestimonialReviews() {
           </button>
         </div>
 
-        {/* Pagination dots */}
-        <div className="mt-8 flex items-center justify-center gap-2.5">
-          {[0, 1].map((index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setPage(index)}
-              aria-label={`Show testimonial page ${index + 1}`}
-              aria-pressed={page === index}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                page === index
-                  ? "w-7 bg-[#f2c260]"
-                  : "w-2.5 bg-white/35 hover:bg-white/60"
-              }`}
-            />
-          ))}
-        </div>
+        {/* Dynamic pagination dots */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2.5">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setPage(index)}
+                aria-label={`Show testimonial page ${index + 1}`}
+                aria-pressed={currentPage === index}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  currentPage === index
+                    ? "w-7 bg-[#f2c260]"
+                    : "w-2.5 bg-white/35 hover:bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Mobile and tablet navigation */}
-        <div className="mt-5 flex justify-center gap-3 xl:hidden">
-          <button
-            type="button"
-            onClick={() => changePage(-1)}
-            className="rounded-full border border-[#d7a747]/60 px-5 py-2 text-xs text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black"
-          >
-            Previous
-          </button>
+        {totalPages > 1 && (
+          <div className="mt-5 flex justify-center gap-3 xl:hidden">
+            <button
+              type="button"
+              onClick={() => changePage(-1)}
+              className="rounded-full border border-[#d7a747]/60 px-5 py-2 text-xs text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black"
+            >
+              Previous
+            </button>
 
-          <button
-            type="button"
-            onClick={() => changePage(1)}
-            className="rounded-full border border-[#d7a747]/60 px-5 py-2 text-xs text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black"
-          >
-            Next
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => changePage(1)}
+              className="rounded-full border border-[#d7a747]/60 px-5 py-2 text-xs text-[#e9b84f] transition hover:bg-[#e9b84f] hover:text-black"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Fine gold borders */}

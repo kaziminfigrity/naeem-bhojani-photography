@@ -3,83 +3,173 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Plus } from "lucide-react";
 
-const categories = [
-  "All",
-  "Wedding",
-  "Birthday Parties",
-  "Headshots",
-  "Sports",
-  "Corporate Events",
+import { getHomepageContent } from "@/services/api/homepage.api";
+import type {
+  FeaturedGallerySection,
+  FeaturedGalleryItem,
+  GalleryCategory,
+} from "@/types/homepage.types";
+
+const defaultCategories: GalleryCategory[] = [
+  { label: "Wedding", order: 1, isActive: true },
+  { label: "Birthday Parties", order: 2, isActive: true },
+  { label: "Headshots", order: 3, isActive: true },
+  { label: "Sports", order: 4, isActive: true },
+  { label: "Corporate Events", order: 5, isActive: true },
 ];
 
-const galleryItems = [
+const defaultItems: FeaturedGalleryItem[] = [
   {
     title: "Wedding Celebration",
     category: "Wedding",
     image: "/images/Festive Wedding Portrait Under Floral Arch.png",
+    alt: "Wedding celebration",
+    order: 1,
+    isActive: true,
     layout: "md:row-span-2",
   },
   {
     title: "Wedding Reception",
     category: "Wedding",
     image: "/images/Golden Hour Indian Wedding Portrait.png",
-    layout: "",
+    alt: "Wedding reception",
+    order: 2,
+    isActive: true,
   },
   {
     title: "Professional Portrait",
     category: "Headshots",
     image: "/images/Speaker Addressing a Warmly Lit Gathering.png",
-    layout: "",
+    alt: "Professional portrait",
+    order: 3,
+    isActive: true,
   },
   {
     title: "Sports Photography",
     category: "Sports",
     image: "/images/Cricket Team at SGVP International Hostel.png",
-    layout: "",
+    alt: "Sports photography",
+    order: 4,
+    isActive: true,
   },
   {
     title: "Wedding Venue",
     category: "Wedding",
     image: "/images/Luxurious Golden-Light Still Life.png",
-    layout: "",
+    alt: "Wedding venue",
+    order: 5,
+    isActive: true,
   },
   {
     title: "Birthday Portrait",
     category: "Birthday Parties",
     image: "/images/Princess Birthday Dessert Celebration.png",
-    layout: "",
+    alt: "Birthday portrait",
+    order: 6,
+    isActive: true,
   },
   {
     title: "Corporate Gathering",
     category: "Corporate Events",
     image: "/images/Business Networking at a Vibrant Trade Show.png",
-    layout: "",
+    alt: "Corporate gathering",
+    order: 7,
+    isActive: true,
   },
   {
     title: "Sports Celebration",
     category: "Sports",
     image: "/images/Cricket Celebration High-Five.png",
-    layout: "",
+    alt: "Sports celebration",
+    order: 8,
+    isActive: true,
   },
   {
     title: "Corporate Portraits",
     category: "Corporate Events",
     image: "/images/Sehri Party Bouquet Presentation.png",
-    layout: "",
+    alt: "Corporate portraits",
+    order: 9,
+    isActive: true,
   },
   {
     title: "Business Exhibition",
     category: "Corporate Events",
     image: "/images/Focused Note-Taking in Blue Drapes.png",
-    layout: "",
+    alt: "Business exhibition",
+    order: 10,
+    isActive: true,
   },
 ];
 
+const defaultSection: FeaturedGallerySection = {
+  eyebrow: "Featured Gallery",
+  heading: "Real People, Real Stories",
+  description:
+    "Explore our collection of beautiful moments captured across weddings, pre-wedding shoots, celebrations, portraits, corporate events, and more. Every photograph tells a unique story, preserving genuine emotions and unforgettable memories that last a lifetime.",
+  buttonLabel: "View Full Gallery",
+  buttonHref: "/gallery",
+  categories: defaultCategories,
+  items: defaultItems,
+  viewMoreLabel: "View More",
+};
+
 export default function FeaturedGallery() {
+  const [section, setSection] =
+    useState<FeaturedGallerySection>(defaultSection);
+
   const [activeCategory, setActiveCategory] = useState("All");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchGallery = async () => {
+      try {
+        const response = await getHomepageContent();
+
+        if (
+          isMounted &&
+          response.success &&
+          response.data?.featuredGallery
+        ) {
+          setSection({
+            ...defaultSection,
+            ...response.data.featuredGallery,
+          });
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch featured gallery:",
+          error
+        );
+      }
+    };
+
+    fetchGallery();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const categories = [
+    "All",
+    ...(section.categories?.length
+      ? [...section.categories]
+          .filter((category) => category.isActive)
+          .sort((a, b) => a.order - b.order)
+          .map((category) => category.label)
+      : defaultCategories.map((category) => category.label)),
+  ];
+
+  const galleryItems: FeaturedGalleryItem[] = (
+    section.items?.length ? section.items : defaultItems
+  )
+    .filter((item) => item.isActive && item.image)
+    .sort((a, b) => a.order - b.order);
 
   const filteredItems =
     activeCategory === "All"
@@ -96,25 +186,23 @@ export default function FeaturedGallery() {
           {/* LEFT CONTENT */}
           <div className="relative flex flex-col items-start lg:pt-5">
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#e5bd78] sm:text-[11px] sm:tracking-[0.32em]">
-              Featured Gallery
+              {section.eyebrow}
             </p>
 
             <h2 className="mt-5 font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-normal leading-[1.06] tracking-tight">
-              Real People,
-              <br />
-              Real Stories
+              {section.heading}
             </h2>
 
             <p className="mt-5 max-w-md text-sm leading-7 text-white/65 sm:mt-6 sm:text-base">
-              A glimpse of our recent work across different events and
-              occasions.
+              {section.description}
             </p>
 
             <Link
-              href="/gallery"
+              href={section.buttonHref || "/gallery"}
               className="group mt-6 inline-flex min-h-12 items-center gap-4 rounded-full bg-[#f0c77f] px-6 py-3 text-sm font-semibold text-black transition duration-300 hover:bg-[#ffdaa0] sm:mt-8 sm:px-8"
             >
-              View Full Gallery
+              {section.buttonLabel || "View Full Gallery"}
+
               <ArrowRight
                 size={18}
                 className="transition-transform duration-300 group-hover:translate-x-1"
@@ -125,7 +213,7 @@ export default function FeaturedGallery() {
           {/* RIGHT GALLERY */}
           <div className="min-w-0">
 
-            {/* Category filters: vertical on mobile, wrapped rows on larger screens */}
+            {/* CATEGORY FILTERS */}
             <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.035] p-3 sm:p-4">
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
                 Explore Categories
@@ -154,21 +242,23 @@ export default function FeaturedGallery() {
               </div>
             </div>
 
-            {/* Responsive photo grid */}
+            {/* RESPONSIVE PHOTO GRID */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:auto-rows-[145px] lg:auto-rows-[155px] xl:grid-cols-4 xl:auto-rows-[170px]">
 
               {filteredItems.map((item) => (
                 <Link
-                  key={item.title}
+                  key={`${item.title}-${item.order}`}
                   href="/gallery"
                   aria-label={`View ${item.title} in gallery`}
                   className={`group relative isolate aspect-[4/3] min-w-0 overflow-hidden rounded-lg bg-neutral-900 md:aspect-auto ${
-                    activeCategory === "All" ? item.layout : ""
+                    activeCategory === "All"
+                      ? item.layout || ""
+                      : ""
                   }`}
                 >
                   <Image
                     src={item.image}
-                    alt={item.title}
+                    alt={item.alt || item.title}
                     fill
                     sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -182,7 +272,7 @@ export default function FeaturedGallery() {
                 </Link>
               ))}
 
-              {/* View more card */}
+              {/* VIEW MORE CARD */}
               <Link
                 href="/gallery"
                 className="group flex min-h-32 flex-col items-center justify-center gap-3 rounded-lg border border-white/25 bg-white/[0.025] p-4 text-center transition duration-300 hover:border-[#f0c77f] hover:bg-[#f0c77f]/[0.06] md:min-h-0"
@@ -195,7 +285,9 @@ export default function FeaturedGallery() {
                   />
                 </span>
 
-                <span className="text-sm font-medium">View More</span>
+                <span className="text-sm font-medium">
+                  {section.viewMoreLabel || "View More"}
+                </span>
 
                 <ArrowRight
                   size={17}

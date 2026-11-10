@@ -3,23 +3,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 
-const photographyTypes = [
-  "Weddings",
-  "Portraits",
-  "Events",
-  "Products",
-  "Corporate",
-  "And More...",
-];
+import type { AboutHero as AboutHeroType } from "@/types/about.types";
 
-export default function AboutHero() {
+interface AboutHeroProps {
+  data: AboutHeroType;
+}
+
+export default function AboutHero({ data }: AboutHeroProps) {
+  const photographyTypes = data.photographyTypes || [];
+
   return (
     <section className="relative isolate min-h-[650px] overflow-hidden bg-[#080706] text-white lg:min-h-[760px]">
       {/* Background Photographer Image */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/images/Golden-Lit Event Photographer at Work.png"
-          alt="Photographer capturing beautiful moments"
+          src={data.backgroundImage || "/images/Golden-Lit Event Photographer at Work.png"}
+          alt={data.backgroundImageAlt || "Photographer capturing beautiful moments"}
           fill
           priority
           sizes="100vw"
@@ -53,35 +52,35 @@ export default function AboutHero() {
 
           {/* Eyebrow */}
           <p className="mb-5 text-xs font-medium uppercase tracking-[0.32em] text-[#e9bb72] sm:text-sm">
-            About Naeem Bhojani Photography
+            {data.eyebrow}
           </p>
 
           {/* Heading */}
           <h1 className="font-serif text-5xl leading-[1.04] tracking-tight sm:text-6xl lg:text-[76px]">
-            Capturing
+            {data.headingLine1}
             <br />
-            Life’s{" "}
-            <span className="text-[#f0c47f]">Beautiful</span>
+            {data.headingLine2}{" "}
+            <span className="text-[#f0c47f]">
+              {data.highlightText}
+            </span>
             <br />
             <span className="font-light italic text-[#f0c47f]">
-              Stories
+              {data.highlightText2}
             </span>
           </h1>
 
           {/* Description */}
           <p className="mt-7 max-w-[610px] text-sm leading-7 text-white/80 sm:text-base sm:leading-8">
-            At Naeem Bhojani Photography, we believe every moment has a story
-            — a feeling, a connection, and a meaning. We capture those moments
-            with creativity, passion and an eye for detail, turning them into
-            timeless memories.
+            {data.description}
           </p>
 
           {/* CTA */}
           <Link
-            href="#our-story"
+            href={data.buttonLink || "#our-story"}
             className="group mt-7 inline-flex min-h-14 items-center gap-5 rounded-full bg-[#f2c57f] px-8 text-sm font-semibold text-[#17100a] transition-all duration-300 hover:bg-white"
           >
-            Our Journey
+            {data.buttonText}
+
             <ArrowRight
               size={20}
               className="transition-transform duration-300 group-hover:translate-x-1"

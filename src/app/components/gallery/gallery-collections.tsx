@@ -3,100 +3,46 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import type { GalleryCollections as GalleryCollectionsData } from "@/types/gallery.types";
 
-const categories = [
-  "All",
-  "Weddings",
-  "Pre Wedding",
-  "Product Photography",
-  "Birthday Parties",
-  "Baby Showers",
-  "Corporate Events",
-  "Sports Events",
-  "Head Shots",
-  "Education Events",
-  "Fashion & Lifestyle",
-];
+interface GalleryCollectionsProps {
+  data: GalleryCollectionsData;
+}
 
-const photos = [
-  {
-    title: "Wedding Photography",
-    category: "Weddings",
-    image: "/images/Festive Wedding Portrait Under Floral Arch.png",
-    size: "md:col-span-2",
-  },
-  {
-    title: "Newborn Memories",
-    category: "Baby Showers",
-    image: "/images/philosophy-baby.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Pre Wedding",
-    category: "Pre Wedding",
-    image: "/images/service-prewedding.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Product Photography",
-    category: "Product Photography",
-    image: "/images/service-product.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Sports Photography",
-    category: "Sports Events",
-    image: "/images/Cricket Celebration High-Five.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Corporate Events",
-    category: "Corporate Events",
-    image: "/images/gallery-headshots.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Professional Portraits",
-    category: "Head Shots",
-    image: "/images/gallery-corporate.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Education Events",
-    category: "Education Events",
-    image: "/images/gallery-education-event.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Birthday Celebrations",
-    category: "Birthday Parties",
-    image: "/images/service-birthday.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Prize Distribution",
-    category: "Education Events",
-    image: "/images/gallery-prize-event.png",
-    size: "md:col-span-1",
-  },
-  {
-    title: "Fashion & Lifestyle",
-    category: "Fashion & Lifestyle",
-    image: "/images/gallery-fashion.png",
-    size: "md:col-span-1",
-  },
-];
-
-export default function GalleryCollections() {
+export default function GalleryCollections({
+  data,
+}: GalleryCollectionsProps) {
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const filteredPhotos = useMemo(() => {
-    if (activeCategory === "All") return photos;
+  // Active photos sorted by order
+  const activePhotos = useMemo(() => {
+    return data.photos
+      .filter((photo) => photo.isActive)
+      .sort((a, b) => a.order - b.order);
+  }, [data.photos]);
 
-    return photos.filter(
+  // Category filtering
+  const filteredPhotos = useMemo(() => {
+    if (activeCategory === "All") return activePhotos;
+
+    return activePhotos.filter(
       (photo) => photo.category === activeCategory
     );
-  }, [activeCategory]);
+  }, [activeCategory, activePhotos]);
+
+  // Show only categories that have active photos
+  const availableCategories = useMemo(() => {
+    const photoCategories = new Set(
+      activePhotos.map((photo) => photo.category)
+    );
+
+    return [
+      "All",
+      ...data.categories.filter(
+        (category) => photoCategories.has(category)
+      ),
+    ];
+  }, [data.categories, activePhotos]);
 
   return (
     <section
@@ -113,27 +59,26 @@ export default function GalleryCollections() {
             <div className="mb-3 flex items-center gap-3">
               <span className="h-px w-8 bg-[#e6b85e]" />
               <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#e6b85e]">
-                The Portfolio
+                {data.eyebrow}
               </p>
             </div>
 
             <h2 className="font-serif text-3xl leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-              Every Frame Tells
+              {data.heading.split(" ").slice(0, -2).join(" ")}
               <span className="ml-2 italic text-[#e9bd70]">
-                a Story.
+                {data.heading.split(" ").slice(-2).join(" ")}
               </span>
             </h2>
           </div>
 
           <p className="max-w-md text-sm leading-6 text-white/55">
-            A curated collection of heartfelt celebrations, beautiful
-            portraits and extraordinary moments captured through our lens.
+            {data.description}
           </p>
         </div>
 
-        {/* Category filters: vertical on mobile, wrapped on larger screens */}
+        {/* Category filters */}
         <div className="mb-6 grid grid-cols-1 gap-2 sm:mb-8 sm:grid-cols-2 md:flex md:flex-wrap">
-          {categories.map((category) => {
+          {availableCategories.map((category) => {
             const isActive = activeCategory === category;
 
             return (
@@ -164,14 +109,14 @@ export default function GalleryCollections() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           {filteredPhotos.map((photo) => (
             <article
-              key={photo.title}
+              key={photo._id || `${photo.title}-${photo.order}`}
               className={`group relative isolate h-[260px] min-w-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[#171512] sm:h-[280px] lg:h-[300px] ${
                 activeCategory === "All" ? photo.size : ""
               }`}
             >
               <Image
                 src={photo.image}
-                alt={photo.title}
+                alt={photo.alt || photo.title}
                 fill
                 sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 35vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -213,17 +158,24 @@ export default function GalleryCollections() {
           ))}
         </div>
 
+        {/* Empty state */}
+        {filteredPhotos.length === 0 && (
+          <div className="py-16 text-center text-sm text-white/50">
+            No photos available in this category.
+          </div>
+        )}
+
         {/* Bottom note */}
         <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs leading-5 text-white/45">
-            Capturing moments. Preserving memories. Telling stories.
+            {data.bottomNote}
           </p>
 
           <a
-            href="/contact"
+            href={data.ctaHref}
             className="inline-flex items-center gap-3 self-start text-xs font-semibold uppercase tracking-[0.15em] text-[#e9bd70] transition hover:text-white"
           >
-            Plan Your Photoshoot
+            {data.ctaLabel}
             <span aria-hidden="true">→</span>
           </a>
         </div>
